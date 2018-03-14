@@ -17,6 +17,31 @@ rcParams['axes.prop_cycle'] = (
 rcParams['image.aspect'] = 'auto'
 
 
+def myfig(x=None, showtitle=True, clearfig=True, **kwargs):
+    if x is None:
+        x = np.random.randint(10000)
+    if clearfig:
+        plt.close(x)
+    fig = plt.figure(x, **kwargs)
+    if showtitle:
+        plt.suptitle(x)
+    return fig
+
+
+def myshow():
+    import sys
+    if plt.get_backend().find('inline') > 0:
+        #print('myshow() inline')
+        return
+    try:
+        sys.ps1
+        #print('myshow() ps1')
+        show(False)
+    except:
+        #print('myshow() except')
+        show(True)
+
+
 def plot3(*args, **kwargs):
     ax = gca(projection='3d')
     ax.plot(*args, **kwargs)
@@ -325,31 +350,6 @@ def fancy_hist(data):
 
     # Give ourselves some more room at the bottom of the plot
     subplots_adjust(bottom=0.15)
-
-
-def myfig(x=None, showtitle=True, clearfig=True, **kwargs):
-    if x is None:
-        x = np.random.randint(10000)
-    if clearfig:
-        plt.close(x)
-    fig = plt.figure(x, **kwargs)
-    if showtitle:
-        plt.suptitle(x)
-    return fig
-
-
-def myshow():
-    import sys
-    if plt.get_backend().find('inline') > 0:
-        #print('myshow() inline')
-        return
-    try:
-        sys.ps1
-        #print('myshow() ps1')
-        show(False)
-    except:
-        #print('myshow() except')
-        show(True)
 
 
 def add_color_bar(fig, ax, im, frac=.08):
