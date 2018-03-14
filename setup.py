@@ -3,8 +3,7 @@ from setuptools import setup
 setup(name='mplt',
       version='2.0',
       description='Set of niceties wrapping matplotlib for signal processing',
-      url='http://gitlab.corp.capellaspace.com/craig/mplt',
-
+      url='http://github.com/stringhamc/mplt',
       author='Craig Stringham',
       author_email='stringham@ieee.org',
       license='MIT',
