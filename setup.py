@@ -11,6 +11,7 @@ setup(name='mplt',
       zip_safe=False,
       classifiers=[
           # Indicate who your project is intended for
-          'Intended Audience :: Researchers',
-      ]
+          'Intended Audience :: Science/Research',
+      ],
+      install_requires=['matplotlib', 'numpy']
 )
