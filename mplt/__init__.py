@@ -2,49 +2,51 @@
 """
 __author__ = 'Craig Stringham'
 __version__ = 2.0
-import matplotlib
 # in order to pass through and un-overloaded functions to pyplot
 from matplotlib.pyplot import *
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.path import Path as mpPath
 import numpy as np
 import os
 import errno
+import sys
 
-# linecolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-#              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
+## modify  matplotlib's rcParams so that it cycles through linestyles as well
+linecolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 rcParams['axes.prop_cycle'] = (
     "cycler('linestyle', ['-', '--', ':']) * cycler('color', {})".format(linecolors))
 rcParams['image.aspect'] = 'auto'
 
 
-def myfig(x=None, showtitle=True, clearfig=True, **kwargs):
-    if x is None:
-        x = np.random.randint(10000)
+def myfig(figname=None, showtitle=True, clearfig=True, **kwargs):
+    """Create figures optionally tracked by name with the name set as the title
+    """
+    if figname is None:
+        figname = np.random.randint(10000)
     if clearfig:
-        plt.close(x)
-    fig = plt.figure(x, **kwargs)
+        plt.close(figname)
+    fig = plt.figure(figname, **kwargs)
     if showtitle:
-        plt.suptitle(x)
+        plt.suptitle(figname)
     return fig
 
 
 def myshow():
-    import sys
+    """Smart checking for plotting depending on whether running in a notebook,
+    interactively in ipython, or from a script"""
     if plt.get_backend().find('inline') > 0:
-        #print('myshow() inline')
         return
     try:
         sys.ps1
-        #print('myshow() ps1')
         show(False)
     except:
-        #print('myshow() except')
         show(True)
 
 
 def plot3(*args, **kwargs):
+    """plot a 3 dimensional line"""
     ax = gca(projection='3d')
     ax.plot(*args, **kwargs)
     return ax
@@ -69,24 +71,32 @@ def format_coord(x, y, X, extent=None):
 
 
 def imshow(*args, **kwargs):
+    """overload matplotlib's imshow to plot the coordinates with the mouse
+    """
     ax = plt.imshow(*args, **kwargs)
     ax.format_coord = lambda x, y: format_coord(x, y, args[0])
     return ax
 
 
 def pcolor(*args, **kwargs):
+    """overload matplotlib's pcolor to plot the coordinates with the mouse
+    """
     plt.pcolor(*args, **kwargs)
     ax = gca()
     ax.format_coord = lambda x, y: format_coord(x, y, args[0])
 
 
 def pcolormesh(*args, **kwargs):
+    """overload matplotlib's pcolormesh to plot the coordinates with the mouse
+    """
     ax = plt.pcolormesh(*args, **kwargs)
     ax.format_coord = lambda x, y: format_coord(x, y, args[0])
     return ax
 
 
 def imenhance(x, percentiles=[5, 95]):
+    """clip an image the the given percentile levels
+    """
     isf = np.isfinite(x)
     (vmin, vmax) = np.percentile(x[isf], percentiles)
     y = x
@@ -96,6 +106,8 @@ def imenhance(x, percentiles=[5, 95]):
 
 
 def imshowe(x, percentiles=[5, 95], **kwargs):
+    """plot an image with the max and min set to the given percentiles
+    """
     isf = np.isfinite(x)
     (vmin, vmax) = np.percentile(x[isf], percentiles)
     if 'percentiles' in kwargs:
@@ -131,6 +143,8 @@ def pcolor2(x, y, xtitle, ytitle, **kwargs):
 
 
 def imimshow(x, **kwargs):
+    """Display real and imaginary parts of an image with linked axes
+    """
     if not np.any(np.iscomplex(x)):  # and x.dtype != np.complex64:
         imshow(x, **kwargs)
     else:
@@ -138,6 +152,8 @@ def imimshow(x, **kwargs):
 
 
 def mpimshow(x, **kwargs):
+    """Display magnitude and phase an image with linked axes
+    """
     if x.size < 1:
         print('Warning empty array supplied')
         return
@@ -148,6 +164,8 @@ def mpimshow(x, **kwargs):
 
 
 def dbpimshow(x, **kwargs):
+    """Display magnitude in deciblels and phase an image with linked axes
+    """
     if np.all(np.isreal(x)) and x.dtype != np.complex64:
         imshow(x, **kwargs)
     else:
@@ -156,6 +174,9 @@ def dbpimshow(x, **kwargs):
 
 
 def impcolor(x, **kwargs):
+    """Display real and imaginary parts of an image with linked axes
+    using pcolor
+    """
     if np.all(np.isreal(x)) and x.dtype != np.complex64:
         pcolor(x, **kwargs)
     else:
@@ -163,6 +184,9 @@ def impcolor(x, **kwargs):
 
 
 def mppcolor(x, **kwargs):
+    """Display magnitude and phase of an image with linked axes
+    using pcolor
+    """
     if np.all(np.isreal(x)) and x.dtype != np.complex64:
         pcolor(x, **kwargs)
     else:
@@ -170,6 +194,9 @@ def mppcolor(x, **kwargs):
 
 
 def implot(x, y=None, **kwargs):
+    """Plot a complex signal with real and imaginary in different
+    subplots but with linked x axes
+    """
     if y is None:
         y = x
         x = np.arange(x.shape[0])
@@ -182,6 +209,9 @@ def implot(x, y=None, **kwargs):
 
 
 def mpplot(x, y=None, **kwargs):
+    """Plot a complex signal with magnitude and phase in different
+    subplots but with linked x axes
+    """
     if y is None:
         y = x
         x = np.arange(x.shape[0])
@@ -195,6 +225,9 @@ def mpplot(x, y=None, **kwargs):
 
 
 def dbpplot(x, y=None, **kwargs):
+    """Plot a complex signal with magnitude in dB and phase in different
+    subplots but with linked x axes
+    """
     if y is None:
         y = x
         x = np.arange(x.shape[0])
@@ -207,7 +240,10 @@ def dbpplot(x, y=None, **kwargs):
 
 
 def plotyy(*args, **kwargs):
-    """modified from http://matplotlib.org/examples/api/two_scales.html"""
+    """Plot two lines on the same subplot but with separate y axes on the
+    left and right
+
+    modified from http://matplotlib.org/examples/api/two_scales.html"""
     ax1 = gca()
     if len(args) == 4:
         t1, s1, t2, s2 = args
@@ -226,8 +262,7 @@ def plotyy(*args, **kwargs):
     color0 = kwargs.pop('color0', 'b')
     color1 = kwargs.pop('color1', 'r')
 
-    ax1.plot(t1, s1, color=color0, **kwargs)  # , 'b-')
-    #ax1.set_xlabel('time (s)')
+    ax1.plot(t1, s1, color=color0, **kwargs)
     # Make the y-axis label and tick labels match the line color.
     ax1.set_ylabel('f(x)', color=color0)
     ax1.set_ylim(np.percentile(s1, [1, 99]))
@@ -244,6 +279,8 @@ def plotyy(*args, **kwargs):
 
 
 def imshow_overlay(z1, z2, **kwargs):
+    """Overlay one image ontop of another using alpha settings
+    """
     ax = gca()
     alpha = 0.5
     if 'alpha' in kwargs:
@@ -271,8 +308,7 @@ def multiimage(*args, **kwargs):
                  (4, 4), (4, 4), (4, 4), (4, 4)]
     if args[0].shape[0] < 1.5 * args[0].shape[1]:
         prefsizes = [(y, x) for x, y in prefsizes]
-    # if numplot > len(prefsizes):
-    #    raise(Exception('unexpectedNumber', 'multiimage is not prepared to plot more than {} figures at once'.format(len(prefsizes))))
+
     if numplot > len(prefsizes):
         w = np.ceil(np.sqrt(numplot))
         h = (w - 1)
@@ -311,11 +347,9 @@ def multiimage(*args, **kwargs):
 def cubeimage(cube, **kwargs):
     """given a 3d array display each plane """
     arglist = [cube[0, :, :]]
-    # print(cube.shape[0])
     for k in range(cube.shape[0] - 1):
         #    print(cube[k+1,:,:].shape)
         arglist.append(cube[k + 1, :, :])
-    #print([x.shape for x in arglist])
     multiimage(*arglist, **kwargs)
 
 
@@ -363,6 +397,14 @@ def add_color_bar(fig, ax, im, frac=.08):
 
 
 def saveall(outputdir='.', extension='.png'):
+    """Save all of the open figures to the given directory.
+    If the pickle format is used (extension='.pickle') a script to load and
+    plot the images is also generated.
+
+    args:
+    outputdir (str): directory to save the output image files
+    extension (str): image extension defining the image type
+    """
     od = addtslash(outputdir)
     mkdir_p(od)
     pickleFig = False
@@ -370,7 +412,7 @@ def saveall(outputdir='.', extension='.png'):
         pickleFig = True
 
     if pickleFig:
-        figscript = ''
+        figscript = '#!/usr/bin/env python\n'
         figscript += 'import matplotlib.pyplot as plt\nimport pickle\n'
 
     for f in plt.get_fignums():
@@ -418,11 +460,12 @@ def polyContains(polyBounds, points, plot=False):
     withinbox = bbPoly.contains_points(points)
     return withinbox
 
-
+## various utilities
 def mbin(bin_edges):
+    """Return the middle of bins"""
     return bin_edges[:-1] + .5 * np.diff(bin_edges)
 
-## various utilities
+
 def angle_offset(img):
     """Calculate the angle, but wrap around the mean angle"""
     m = np.nanmean(img)
@@ -432,6 +475,7 @@ def angle_offset(img):
 
 
 def addtslash(d):
+    """Add a trailing slash if not already there"""
     if d[-1] == '/':
         return d
     else:
@@ -439,6 +483,7 @@ def addtslash(d):
 
 
 def mkdir_p(path):
+    """Make all the directories to make the given path"""
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
@@ -446,5 +491,3 @@ def mkdir_p(path):
             pass
         else:
             raise exc
-    
-
