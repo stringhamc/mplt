@@ -10,9 +10,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.path import Path as mpPath
 import numpy as np
 import os
+import errno
 
-linecolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-              '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+# linecolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+#              '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 rcParams['axes.prop_cycle'] = (
     "cycler('linestyle', ['-', '--', ':']) * cycler('color', {})".format(linecolors))
 rcParams['image.aspect'] = 'auto'
