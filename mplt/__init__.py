@@ -1,7 +1,7 @@
 """Set of niceties wrapping matplotlib
 """
 __author__ = 'Craig Stringham'
-__version__ = 2.0
+__version__ = '2.0.6'
 # in order to pass through and un-overloaded functions to pyplot
 from matplotlib.pyplot import *
 import matplotlib.pyplot as plt
@@ -35,13 +35,16 @@ def myfig(figname=None, showtitle=True, clearfig=True, **kwargs):
 
 def myshow():
     """Smart checking for plotting depending on whether running in a notebook,
-    interactively in ipython, or from a script"""
+    interactively, or from a script"""
     if plt.get_backend().find('inline') > 0:
+        # don't call show when run from notebook
         return
     try:
+        # don't block when running interactively
         sys.ps1
         show(False)
-    except:
+    except AttributeError:
+        # not running interactively
         show(True)
 
 
