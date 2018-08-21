@@ -304,6 +304,7 @@ def multiimage(*args, **kwargs):
     subtitles = subtitles or labels
     pscale = kwargs.pop('pscale', None)
     noticks = kwargs.pop('noticks', None)
+    noxticks = kwargs.pop('noxticks', None)
 
     numplot = len(args)
     prefsizes = [(1, 1), (1, 1), (1, 2), (1, 3), (2, 2), (2, 3), (2, 3),
@@ -340,10 +341,11 @@ def multiimage(*args, **kwargs):
         if colorbar:
             plt.colorbar()
 
-        if noticks:
+        if noticks or noxticks:
             ax1.get_xaxis().set_visible(False)
-            ax1.get_yaxis().set_visible(False)
             ax1.xaxis.set_ticklabels([])
+        if noticks:
+            ax1.get_yaxis().set_visible(False)
             ax1.yaxis.set_ticklabels([])
 
 

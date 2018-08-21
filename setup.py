@@ -8,7 +8,6 @@ setup(name='mplt',
       author_email='stringham@ieee.org',
       license='MIT',
       packages=['mplt'],
-      zip_safe=False,
       classifiers=[
           # Indicate who your project is intended for
           'Intended Audience :: Science/Research',
