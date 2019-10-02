@@ -10,6 +10,9 @@ import numpy as np
 import os
 import errno
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 ## modify  matplotlib's rcParams so that it cycles through linestyles as well
@@ -112,7 +115,12 @@ def imshowe(x, percentiles=[5, 95], **kwargs):
     """plot an image with the max and min set to the given percentiles
     """
     isf = np.isfinite(x)
-    (vmin, vmax) = np.percentile(x[isf], percentiles)
+    if np.any(isf):
+        (vmin, vmax) = np.percentile(x[isf], percentiles)
+    else:
+        logger.warning('No finite numbers in array')
+        vmin = 0
+        vmax = 1
     if 'percentiles' in kwargs:
         del(kwargs['percentiles'])
     return imshow(x, vmin=vmin, vmax=vmax, **kwargs)
@@ -158,7 +166,7 @@ def mpimshow(x, **kwargs):
     """Display magnitude and phase an image with linked axes
     """
     if x.size < 1:
-        print('Warning empty array supplied')
+        logger.debug('Warning empty array supplied')
         return
     if not np.any(np.iscomplex(x)):
         return imshow(x, **kwargs)
@@ -206,7 +214,7 @@ def implot(x, y=None, **kwargs):
     ax = subplot(211)
     plot(x, y.real, **kwargs)
     title('real')
-    subplot(212, sharex=ax)
+    subplot(212, sharex=ax, sharey=ax)
     plot(x, y.imag, **kwargs)
     title('imag')
 
@@ -353,7 +361,6 @@ def cubeimage(cube, **kwargs):
     """given a 3d array display each plane """
     arglist = [cube[0, :, :]]
     for k in range(cube.shape[0] - 1):
-        #    print(cube[k+1,:,:].shape)
         arglist.append(cube[k + 1, :, :])
     multiimage(*arglist, **kwargs)
 
