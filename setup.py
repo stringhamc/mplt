@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='mplt',
-      version='2.0.6',
+      version='2.0.7',
       description='Set of niceties wrapping matplotlib for signal processing',
       url='http://github.com/stringhamc/mplt',
       author='Craig Stringham',
