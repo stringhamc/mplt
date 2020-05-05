@@ -215,6 +215,7 @@ def implot(x, y=None, **kwargs):
     ax = subplot(211)
     plot(x, y.real, **kwargs)
     title('real')
+    setp(ax.get_xticklabels(), visible=False)    
     subplot(212, sharex=ax, sharey=ax)
     plot(x, y.imag, **kwargs)
     title('imag')
@@ -231,10 +232,12 @@ def mpplot(x, y=None, **kwargs):
     ax = subplot(211)
     plot(x, np.abs(y), **kwargs)
     title('magnitude')
+
+    setp(ax.get_xticklabels(), visible=False)
     ax2 = subplot(212, sharex=ax)
     ang = np.angle(y)
     if unwrap:
-        ang = np.unwrap(ang, axis=-1)
+        ang = np.unwrap(ang, axis=0)
     plot(x, ang, **kwargs)
     title('phase')
     return ax, ax2
@@ -244,17 +247,18 @@ def dbpplot(x, y=None, **kwargs):
     """Plot a complex signal with magnitude in dB and phase in different
     subplots but with linked x axes
     """
-    unwrap = kwargs.pop('unwrap', False)    
+    unwrap = kwargs.pop('unwrap', False)
     if y is None:
         y = x
         x = np.arange(x.shape[0])
     ax = subplot(211)
     plot(x, 20 * np.log10(np.abs(y)), **kwargs)
     title('magnitude (dB)')
+    setp(ax.get_xticklabels(), visible=False)
     subplot(212, sharex=ax)
     ang = np.angle(y)
     if unwrap:
-        ang = np.unwrap(ang, axis=-1)
+        ang = np.unwrap(ang, axis=0)
     plot(x, ang, **kwargs)
     title('phase')
 
@@ -492,5 +496,3 @@ def angle_offset(img):
     m /= abs(m)
     out = np.angle(img * m.conj()) + np.angle(m)
     return out
-
-
