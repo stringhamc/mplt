@@ -1,16 +1,17 @@
 """Set of niceties wrapping matplotlib
 """
 __author__ = 'Craig Stringham'
-__version__ = '2.0.6'
+__version__ = '2.0.7'
 # in order to pass through and un-overloaded functions to pyplot
+import sys
+from pathlib import Path
+import logging
+
+import numpy as np
+
 from matplotlib.pyplot import *
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as mpPath
-import numpy as np
-import os
-import errno
-import sys
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,7 @@ def mpplot(x, y=None, **kwargs):
     """Plot a complex signal with magnitude and phase in different
     subplots but with linked x axes
     """
+    unwrap = kwargs.pop('unwrap', False)
     if y is None:
         y = x
         x = np.arange(x.shape[0])
@@ -230,7 +232,10 @@ def mpplot(x, y=None, **kwargs):
     plot(x, np.abs(y), **kwargs)
     title('magnitude')
     ax2 = subplot(212, sharex=ax)
-    plot(x, np.angle(y), **kwargs)
+    ang = np.angle(y)
+    if unwrap:
+        ang = np.unwrap(ang, axis=-1)
+    plot(x, ang, **kwargs)
     title('phase')
     return ax, ax2
 
@@ -239,6 +244,7 @@ def dbpplot(x, y=None, **kwargs):
     """Plot a complex signal with magnitude in dB and phase in different
     subplots but with linked x axes
     """
+    unwrap = kwargs.pop('unwrap', False)    
     if y is None:
         y = x
         x = np.arange(x.shape[0])
@@ -246,7 +252,10 @@ def dbpplot(x, y=None, **kwargs):
     plot(x, 20 * np.log10(np.abs(y)), **kwargs)
     title('magnitude (dB)')
     subplot(212, sharex=ax)
-    plot(x, np.angle(y), **kwargs)
+    ang = np.angle(y)
+    if unwrap:
+        ang = np.unwrap(ang, axis=-1)
+    plot(x, ang, **kwargs)
     title('phase')
 
 
@@ -408,7 +417,7 @@ def add_color_bar(fig, ax, im, frac=.08):
     fig.colorbar(im, cax=cax)
 
 
-def saveall(outputdir='.', extension='.png'):
+def saveall(outputdir=None, extension='.png'):
     """Save all of the open figures to the given directory.
     If the pickle format is used (extension='.pickle') a script to load and
     plot the images is also generated.
@@ -417,8 +426,8 @@ def saveall(outputdir='.', extension='.png'):
     outputdir (str): directory to save the output image files
     extension (str): image extension defining the image type
     """
-    od = addtslash(outputdir)
-    mkdir_p(od)
+    outputdir = Path() if outputdir is None else Path(outputdir)
+    outputdir.makedirs(exist_ok=True)
     pickleFig = False
     if extension.find('.pickle') == 0:
         pickleFig = True
@@ -434,16 +443,15 @@ def saveall(outputdir='.', extension='.png'):
         if pickleFig:
             import pickle
             picklename = '{}.pickle'.format(figname)
-            fout = open(od + picklename, 'wb')
-            pickle.dump(fig, fout)
-            fout.close()
+            with open(outputdir / picklename, 'wb') as fout:
+                pickle.dump(fig, fout)
             figscript += 'ax = pickle.load(open(r''{}'',''rb''))\n'.format(
                 picklename)
         else:
-            plt.savefig(od + '{}{}'.format(figname, extension))
+            plt.savefig(outputdir / '{}{}'.format(figname, extension))
     if pickleFig:
         figscript += 'plt.show()\n'
-        figscriptfile = open(od + 'plotfigs.py', 'w')
+        figscriptfile = open(outputdir / 'plotfigs.py', 'w')
         figscriptfile.write(figscript)
         figscriptfile.close()
 
@@ -486,20 +494,3 @@ def angle_offset(img):
     return out
 
 
-def addtslash(d):
-    """Add a trailing slash if not already there"""
-    if d[-1] == '/':
-        return d
-    else:
-        return d + '/'
-
-
-def mkdir_p(path):
-    """Make all the directories to make the given path"""
-    try:
-        os.makedirs(path)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise exc
