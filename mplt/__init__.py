@@ -427,7 +427,7 @@ def saveall(outputdir=None, extension='.png'):
     extension (str): image extension defining the image type
     """
     outputdir = Path() if outputdir is None else Path(outputdir)
-    outputdir.makedirs(exist_ok=True)
+    outputdir.mkdir(exist_ok=True)
     pickleFig = False
     if extension.find('.pickle') == 0:
         pickleFig = True
