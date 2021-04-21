@@ -46,10 +46,10 @@ def myshow():
     try:
         # don't block when running interactively
         sys.ps1
-        show(False)
+        show(block=False)
     except AttributeError:
         # not running interactively
-        show(True)
+        show(block=True)
 
 
 def plot3(*args, **kwargs):
@@ -271,7 +271,7 @@ def plotyy(*args, **kwargs):
     ax1 = gca()
     if len(args) == 4:
         t1, s1, t2, s2 = args
-    if len(args) == 3:
+    elif len(args) == 3:
         t, s1, s2 = args
         t1 = t
         t2 = t
@@ -449,8 +449,7 @@ def saveall(outputdir=None, extension='.png'):
             picklename = '{}.pickle'.format(figname)
             with open(outputdir / picklename, 'wb') as fout:
                 pickle.dump(fig, fout)
-            figscript += 'ax = pickle.load(open(r''{}'',''rb''))\n'.format(
-                picklename)
+            figscript += f"ax = pickle.load(open(r'{picklename}', 'rb'))\n"
         else:
             plt.savefig(outputdir / '{}{}'.format(figname, extension))
     if pickleFig:
